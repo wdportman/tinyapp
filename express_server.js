@@ -20,11 +20,6 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-//Listening: Listen for new requests on a certain port:
-app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
-});
-
 //Random string generator for short URLs:
 function generateRandomString() {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -65,16 +60,28 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-//The below route sends users to the long URL when they use the endpoint :
+//The below route sends users to the long URL when they use the endpoint:
 app.get("/u/:shortURL", (req, res) => {
   longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
 });
 
 //POST
-//Handle post request when user submits new URL on /urls/new
+//Handle post request when user submits new URL on /urls/new:
 app.post("/urls", (req, res) => {
   const newShortURL = generateRandomString();
   urlDatabase[newShortURL] = req.body["longURL"];  // Generate new short URL and add it to database object as key for long URL value
   res.redirect(`/urls/${newShortURL}`);       // Redirect user to new shortURL page for inputted URL
+});
+
+//Handle post request when user deletes URL on /urls:
+app.post("/urls/:id/delete", (req, res) => {
+  const urlId = req.params.id;
+  delete urlDatabase[urlId];
+  res.redirect('/urls');
+});
+
+//Listening: Listen for new requests on a certain port:
+app.listen(PORT, () => {
+  console.log(`Example app listening on port ${PORT}!`);
 });

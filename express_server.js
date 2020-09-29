@@ -1,14 +1,18 @@
-//Require Express & body-parser libraries:
+//Require Express, body-parser, and Morgan:
 const express = require("express");
 const bodyParser = require("body-parser");
+const morgan = require('morgan');
 
 //Create server:
 const app = express();
 const PORT = 8080; // default port 8080
 
-//Use EJS (for template engine) and body-parser (for parsing incoming request bodies):
+//Set EJS as view engine:
 app.set("view engine", "ejs");
+
+//Middleware: Set up body-parser (which parses HTTP request bodies) and Morgan (which logs HTTP requests to console)
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(morgan('dev'));
 
 //Store short-URL / long-URL pairs in in urlDatabase object:
 const urlDatabase = {

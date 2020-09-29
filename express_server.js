@@ -21,6 +21,16 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
+//Random string generator for short URLs:
+function generateRandomString() {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let output = "";
+  for (let i = 0; i < 6; i++) {
+    output += characters[Math.floor(Math.random() * characters.length)];
+  }
+  return output;
+};
+
 //Routes: Stipulate what to show the user based on their request
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -34,16 +44,25 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
+//The below route shows a listing of all long-and-short URL pairs
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
+//The below route shows a submit-new-URL page
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+//The below route shows, for a given short URL, what its long URL is
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render("urls_show", templateVars);
+});
+
+//Handle post request when user submits new URL on /urls/new
+app.post("/urls", (req, res) => {
+  console.log(req.body);  // Log the POST request body to the console
+  res.send("Ok");         // Respond with 'Ok' (we will replace this)
 });

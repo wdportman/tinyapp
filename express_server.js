@@ -81,6 +81,12 @@ app.post("/urls/:id/delete", (req, res) => {
   res.redirect('/urls');
 });
 
+//Handle post request when user updates a URL on /urls_show:
+app.post("/urls/:id", (req,res) => {
+  const urlId = req.params.id;
+  urlDatabase[urlId] = "hi";
+});
+
 //Listening: Listen for new requests on a certain port:
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);

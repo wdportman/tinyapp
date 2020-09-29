@@ -16,13 +16,14 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-//Pathways
-app.get("/", (req, res) => {
-  res.send("Hello!");
-});
-
+//Listening: Listen for new requests on a certain port
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
+});
+
+//Routes: Stipulate what to show the user based on their request
+app.get("/", (req, res) => {
+  res.send("Hello!");
 });
 
 app.get("/urls.json", (req, res) => {

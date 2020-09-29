@@ -83,9 +83,18 @@ app.post("/urls/:id/delete", (req, res) => {
 
 //Handle post request when user updates a URL on /urls_show:
 app.post("/urls/:id", (req,res) => {
+  const updatedLongURL = req.body["updatedLongURL"];
   const urlId = req.params.id;
-  urlDatabase[urlId] = "hi";
+  urlDatabase[urlId] = updatedLongURL;
+  console.log(updatedLongURL);
+  console.log(req.body);
+  res.redirect('/urls');
 });
+
+//Add a catch-all
+// app.get('*', (req, res) => {
+//   res.status(404).send('page not found');
+// });
 
 //Listening: Listen for new requests on a certain port:
 app.listen(PORT, () => {

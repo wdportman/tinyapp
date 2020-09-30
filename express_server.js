@@ -1,7 +1,8 @@
-//Require Express, body-parser, and Morgan:
+//Require third-party libraries:
 const express = require("express");
 const bodyParser = require("body-parser");
 const morgan = require('morgan');
+const cookieParser = require('cookie-parser')
 
 //Create server:
 const app = express();
@@ -13,6 +14,7 @@ app.set("view engine", "ejs");
 //Middleware: Set up body-parser (which parses HTTP request bodies) and Morgan (which logs HTTP requests to console)
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(morgan('dev'));
+app.use(cookieParser());
 
 //Store short-URL / long-URL pairs in in urlDatabase object:
 const urlDatabase = {

@@ -1,24 +1,29 @@
 <!-- The below view shows, for a given short URL, what its long URL is-->
+
 <!DOCTYPE html>
 <html lang="en">
-  <head><%- include('./partials/_head.ejs'); %></head>
-  <body>
+
+<head><%- include('./partials/_head.ejs'); %></head>
+
+<body>
   <header><%- include('./partials/_header.ejs'); %></header>
   <div class="card text-center">
-      <div class="card-header"></div>
-      <div class="card-body">
-        <h5 class="card-title">TinyURL for: <%= longURL %></h5>
-        <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
-        <form class="form-center" method="POST" action="/urls/<%= shortURL %>">
-            <div class="card-header">
-              <label for="updatedLongURL">Edit:</label>
-              <input class="form-center" type="text" name="updatedLongURL" placeholder="http://" style="width: 300px; margin: 1em">
-              <button type="submit" class="btn btn-primary">Submit</button>
-            </div>
-          </form>
-      </div>
+    <div class="card-header"></div>
+    <div class="card-body">
+      <h5 class="card-title">TinyURL for: <%= longURL %></h5>
+      <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
+      <form class="form-center" method="POST" action="/urls/<%= shortURL %>">
+        <div>
+          <label for="updatedLongURL">Edit:</label>
+          <input class="form-center" type="text" name="updatedLongURL" placeholder="http://"
+            style="width: 300px; margin: 1em">
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      </form>
+    </div>
     <div class="card-footer text-muted"></div>
   </div>
   <footer><%- include('./partials/_footer.ejs'); %></footer>
 </body>
+
 </html>

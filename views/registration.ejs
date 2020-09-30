@@ -2,9 +2,24 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head><%- include('./partials/_head.ejs'); %></head>
+
 <body>
-<header><%- include('./partials/_header.ejs'); %></head>
+  <header><%- include('./partials/_header.ejs'); %></head>
+    <div class="card text-center">
+      <div class="card-header"></div>
+      <div class="card-body">
+      <h5 class="card-title">Register for TinyApp</h5>
+      <form class = "card-test" method="POST" action="/register">
+        <label for="email">Email address: </label>
+        <input type="email" name="email" />
+        <label for="password">Password: </label>
+        <input type="password" name="password" />
+        <button type="submit" class="btn btn-primary">Register</button>
+      </form>
+    </div>
 </body>
 <footer><%- include('./partials/_footer.ejs'); %></footer>
+
 </html>

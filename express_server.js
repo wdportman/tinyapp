@@ -69,6 +69,12 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
+//Send users to registration page:
+app.get("/register", (req, res) => {
+  const templateVars = { username: req.cookies["name"] };
+  res.render("registration", templateVars);
+});
+
 //POST
 //Handle post request when user submits new URL on /urls/new:
 app.post("/urls", (req, res) => {

@@ -16,10 +16,26 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(morgan('dev'));
 app.use(cookieParser());
 
-//Store short-URL / long-URL pairs in in urlDatabase object:
+//DATA ----------------------------------------------------------
+
+//URLs:
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
+};
+
+//Users:
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
 };
 
 //Random string generator for short URLs:
@@ -31,6 +47,8 @@ function generateRandomString() {
   }
   return output;
 };
+
+//ROUTES ----------------------------------------------------------
 
 //Routes: Stipulate what to show the user based on their request:
 app.get("/", (req, res) => {
@@ -108,6 +126,21 @@ app.post("/login", (req, res) => {
 //Handle logout request
 app.post("/logout", (req, res) => {
   res.clearCookie("name");
+  res.redirect('/urls');
+});
+
+//Handle registration request:
+app.post("/register", (req, res) => {
+  const email = req.body["email"];
+  const password = req.body["password"];
+  const userRandomID = generateRandomString();
+  users[userRandomID] = {
+    id: userRandomID,
+    "email": email,
+    "password": password
+  }
+  res.cookie("user_id", userRandomID);
+  console.log(users);
   res.redirect('/urls');
 });
 

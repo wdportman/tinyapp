@@ -52,11 +52,11 @@ function generateRandomString() {
   return output;
 };
 
-//Check if a user email already exists in the database
-function lookUpEmail(email) {
+//Return associated user object if email is in database
+function returnUserObjectForEmail(email) {
   for (const user in users) {
     if (email === users[user]["email"]) {
-      return true;
+      return users[user];
     }
   }
   return false;
@@ -143,14 +143,22 @@ app.post("/urls/:id", (req,res) => {
 
 //Handle login request
 app.post("/login", (req, res) => {
-  const username = req.body["username"];
-  res.cookie("name", username);
-  res.redirect('/urls');
+  const email = req.body["email"];
+  const password = req.body["password"];
+  const userObject = returnUserObjectForEmail(email);
+  if (!userObject) {
+    res.status(403).send("This email address is not registered.")
+  } else if (password !== userObject["password"]) {
+    res.status(403).send("Invalid password.")
+  } else {
+    res.cookie("user_id", userObject["id"]);
+    res.redirect('/urls');
+  }
 });
 
 //Handle logout request
 app.post("/logout", (req, res) => {
-  res.clearCookie("name");
+  res.clearCookie("user_id");
   res.redirect('/urls');
 });
 
@@ -161,7 +169,7 @@ app.post("/register", (req, res) => {
   if (email === "" || password === "") {
     res.status(400).send("Please submit a valid email and password.");
     //add "go back to registration page" option here?
-  } else if (lookUpEmail(email)) {
+  } else if (returnUserObjectForEmail(email)) {
     res.status(400).send("This email is already registered.");
   } else {
     const userRandomID = generateRandomString();

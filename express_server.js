@@ -22,8 +22,14 @@ app.use(cookieParser());
 
 //URLs:
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": {
+    longURL: "http://www.lighthouselabs.ca",
+    userID: "aJ48lW"
+  },
+  "9sm5xK": {
+    longURL: "http://www.google.com",
+    userID: "aJ48lW"
+  }
 };
 
 //Users:
@@ -62,45 +68,72 @@ const returnUserObjectForEmail = (email) => {
   return false;
 };
 
+//Returns the URLs where the userID is equal to the ID of the currently logged-in user:
+const urlsForUser = (id) => {
+  const output = {};
+  for (url in urlDatabase) {
+    if (urlDatabase[url]["userID"] === id) {
+      output[url] = urlDatabase[url];
+    }
+  }
+  return output;
+};
+
 //ROUTES ---------------------------------------------------------------------------
 
-//Routes: Stipulate what to show the user based on their request:
+//Redirect "/" requests to URLs page:
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  res.redirect('/urls');
 });
 
+//Show URLs "database":
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
+//Show user "database":
+app.get("/users.json", (req, res) => {
+  res.json(users);
 });
 
 //The below route shows a listing of all long-and-short URL pairs:
 app.get("/urls", (req, res) => {
   const userObject = users[req.cookies["user_id"]];
-  const templateVars = { urls: urlDatabase, user: userObject };
-  res.render("urls_index", templateVars);
+  const id = req.cookies["user_id"];
+  const urls = urlsForUser(id);
+  const templateVars = { urls, user: userObject };
+  if (!userObject) {
+    res.status(403).send("Please log in or register first.");
+  } else {
+    res.render("urls_index", templateVars);
+  }
 });
 
 //The below route shows a submit-new-URL page:
 app.get("/urls/new", (req, res) => {
   const userObject = users[req.cookies["user_id"]];
-  const templateVars = { urls: urlDatabase, user: userObject };
-  res.render("urls_new", templateVars);
+  const templateVars = { user: userObject };
+  if (!userObject) {
+    res.status(403).send("Please log in or register first.");
+  } else {
+    res.render("urls_new", templateVars);
+  }
 });
 
 //The below route shows, for a given short URL, what its long URL is:
 app.get("/urls/:shortURL", (req, res) => {
   const userObject = users[req.cookies["user_id"]];
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: userObject };
-  res.render("urls_show", templateVars);
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]["longURL"], user: userObject };
+  if (!userObject) {
+    res.redirect("/login");
+  } else {
+    res.render("urls_show", templateVars);
+  }
 });
 
 //The below route sends users to the long URL when they use the short URL endpoint:
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL = urlDatabase[req.params.shortURL]["longURL"];
   res.redirect(longURL);
 });
 
@@ -122,8 +155,8 @@ app.get('/login', (req, res) => {
 //Handle post request when user submits new URL on /urls/new:
 app.post("/urls", (req, res) => {
   const newShortURL = generateRandomString();
-  urlDatabase[newShortURL] = req.body["longURL"];  // Generate new short URL and add it to database object as key for long URL value
-  res.redirect(`/urls/${newShortURL}`);       // Redirect user to new shortURL page for inputted URL
+  urlDatabase[newShortURL] = { longURL: req.body["longURL"], userID: req.cookies["user_id"] };
+  res.redirect(`/urls/${newShortURL}`);
 });
 
 //Handle post request when user deletes URL on /urls:
@@ -137,7 +170,7 @@ app.post("/urls/:id/delete", (req, res) => {
 app.post("/urls/:id", (req,res) => {
   const updatedLongURL = req.body["updatedLongURL"];
   const urlId = req.params.id;
-  urlDatabase[urlId] = updatedLongURL;
+  urlDatabase[urlId]["longURL"] = updatedLongURL;
   res.redirect('/urls');
 });
 

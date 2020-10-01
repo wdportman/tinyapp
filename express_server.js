@@ -4,7 +4,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const morgan = require('morgan');
-const cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser');
 
 //Create server:
 const app = express();
@@ -27,15 +27,15 @@ const urlDatabase = {
 };
 
 //Users:
-const users = { 
+const users = {
   "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
+    id: "userRandomID",
+    email: "user@example.com",
     password: "purple-monkey-dinosaur"
   },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
+  "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
     password: "dishwasher-funk"
   }
 };
@@ -43,7 +43,7 @@ const users = {
 //FUNCTIONS ---------------------------------------------------------------------------
 
 //Random string generator for short URLs:
-function generateRandomString() {
+const generateRandomString = () => {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let output = "";
   for (let i = 0; i < 6; i++) {
@@ -53,14 +53,14 @@ function generateRandomString() {
 };
 
 //Return associated user object if email is in database
-function returnUserObjectForEmail(email) {
+const returnUserObjectForEmail = (email) => {
   for (const user in users) {
     if (email === users[user]["email"]) {
       return users[user];
     }
   }
   return false;
-}
+};
 
 //ROUTES ---------------------------------------------------------------------------
 
@@ -100,7 +100,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
 //The below route sends users to the long URL when they use the short URL endpoint:
 app.get("/u/:shortURL", (req, res) => {
-  longURL = urlDatabase[req.params.shortURL];
+  const longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
 });
 
@@ -147,9 +147,9 @@ app.post("/login", (req, res) => {
   const password = req.body["password"];
   const userObject = returnUserObjectForEmail(email);
   if (!userObject) {
-    res.status(403).send("This email address is not registered.")
+    res.status(403).send("This email address is not registered.");
   } else if (password !== userObject["password"]) {
-    res.status(403).send("Invalid password.")
+    res.status(403).send("Invalid password.");
   } else {
     res.cookie("user_id", userObject["id"]);
     res.redirect('/urls');
@@ -177,7 +177,7 @@ app.post("/register", (req, res) => {
       id: userRandomID,
       "email": email,
       "password": password
-    }
+    };
     res.cookie("user_id", userRandomID);
     res.redirect('/urls');
   }

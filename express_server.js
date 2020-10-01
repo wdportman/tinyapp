@@ -1,3 +1,5 @@
+//SERVER SET-UP ---------------------------------------------------------------------------
+
 //Require third-party libraries:
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -16,7 +18,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(morgan('dev'));
 app.use(cookieParser());
 
-//DATA ----------------------------------------------------------
+//DATA ---------------------------------------------------------------------------
 
 //URLs:
 const urlDatabase = {
@@ -38,7 +40,7 @@ const users = {
   }
 };
 
-//FUNCTIONS ----------------------------------------------------------
+//FUNCTIONS ---------------------------------------------------------------------------
 
 //Random string generator for short URLs:
 function generateRandomString() {
@@ -60,7 +62,7 @@ function lookUpEmail(email) {
   return false;
 }
 
-//ROUTES ----------------------------------------------------------
+//ROUTES ---------------------------------------------------------------------------
 
 //Routes: Stipulate what to show the user based on their request:
 app.get("/", (req, res) => {
@@ -173,10 +175,12 @@ app.post("/register", (req, res) => {
   }
 });
 
-//Add a catch-all
-// app.get('*', (req, res) => {
-//   res.status(404).send('page not found');
-// });
+//Catch-all get request handler, if route is not specified above
+app.get('*', (req, res) => {
+  res.status(404).send('Page not found');
+});
+
+// LISTENER ---------------------------------------------------------------------------
 
 //Listening: Listen for new requests on a certain port:
 app.listen(PORT, () => {

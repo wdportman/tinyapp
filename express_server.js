@@ -103,7 +103,7 @@ app.get("/urls", (req, res) => {
   const urls = urlsForUser(id);
   const templateVars = { urls, user: userObject };
   if (!userObject) {
-    res.status(403).send("Please log in or register first.");
+    res.status(403).send("Please log in or register.");
   } else {
     res.render("urls_index", templateVars);
   }
@@ -114,7 +114,7 @@ app.get("/urls/new", (req, res) => {
   const userObject = users[req.cookies["user_id"]];
   const templateVars = { user: userObject };
   if (!userObject) {
-    res.status(403).send("Please log in or register first.");
+    res.status(403).send("Please log in or register.");
   } else {
     res.render("urls_new", templateVars);
   }
@@ -152,29 +152,41 @@ app.get('/login', (req, res) => {
 });
 
 //POST
-//Handle post request when user submits new URL on /urls/new:
+//Handle post request when user submits new URL (on /urls/new):
 app.post("/urls", (req, res) => {
   const newShortURL = generateRandomString();
   urlDatabase[newShortURL] = { longURL: req.body["longURL"], userID: req.cookies["user_id"] };
   res.redirect(`/urls/${newShortURL}`);
 });
 
-//Handle post request when user deletes URL on /urls:
+//Handle post request when user deletes URL (on /urls):
 app.post("/urls/:id/delete", (req, res) => {
+  const id = req.cookies["user_id"];
+  const urls = urlsForUser(id);
   const urlId = req.params.id;
-  delete urlDatabase[urlId];
-  res.redirect('/urls');
+  if (urls[urlId]) {
+    delete urlDatabase[urlId];
+    res.redirect('/urls');
+  } else {
+    res.status(403).send("Deletion request denied: Unauthorized.");
+  }
 });
 
-//Handle post request when user updates a URL on /urls_show:
+//Handle post request when user updates a URL (on /urls_show):
 app.post("/urls/:id", (req,res) => {
+  const id = req.cookies["user_id"];
+  const urls = urlsForUser(id);
   const updatedLongURL = req.body["updatedLongURL"];
   const urlId = req.params.id;
-  urlDatabase[urlId]["longURL"] = updatedLongURL;
-  res.redirect('/urls');
+  if (urls[urlId]) {
+    urlDatabase[urlId]["longURL"] = updatedLongURL;
+    res.redirect('/urls');
+    } else {
+    res.status(403).send("Update request denied: Unauthorized.");
+  }
 });
 
-//Handle login request
+//Handle login request:
 app.post("/login", (req, res) => {
   const email = req.body["email"];
   const password = req.body["password"];

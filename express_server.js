@@ -65,19 +65,22 @@ app.get("/hello", (req, res) => {
 
 //The below route shows a listing of all long-and-short URL pairs:
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase, username: req.cookies["name"] };
+  const userObject = users[req.cookies["user_id"]];
+  const templateVars = { urls: urlDatabase, user: userObject };
   res.render("urls_index", templateVars);
 });
 
 //The below route shows a submit-new-URL page:
 app.get("/urls/new", (req, res) => {
-  const templateVars = { username: req.cookies["name"] };
+  const userObject = users[req.cookies["user_id"]];
+  const templateVars = { urls: urlDatabase, user: userObject };
   res.render("urls_new", templateVars);
 });
 
 //The below route shows, for a given short URL, what its long URL is:
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["name"] };
+  const userObject = users[req.cookies["user_id"]];
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: userObject };
   res.render("urls_show", templateVars);
 });
 
@@ -89,7 +92,8 @@ app.get("/u/:shortURL", (req, res) => {
 
 //Send users to registration page:
 app.get("/register", (req, res) => {
-  const templateVars = { username: req.cookies["name"] };
+  const userObject = users[req.cookies["user_id"]];
+  const templateVars = { urls: urlDatabase, user: userObject };
   res.render("registration", templateVars);
 });
 
@@ -140,7 +144,6 @@ app.post("/register", (req, res) => {
     "password": password
   }
   res.cookie("user_id", userRandomID);
-  console.log(users);
   res.redirect('/urls');
 });
 

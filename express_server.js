@@ -38,6 +38,8 @@ const users = {
   }
 };
 
+//FUNCTIONS ----------------------------------------------------------
+
 //Random string generator for short URLs:
 function generateRandomString() {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -47,6 +49,16 @@ function generateRandomString() {
   }
   return output;
 };
+
+//Check if a user email already exists in the database
+function lookUpEmail(email) {
+  for (const user in users) {
+    if (email === users[user]["email"]) {
+      return true;
+    }
+  }
+  return false;
+}
 
 //ROUTES ----------------------------------------------------------
 
@@ -137,14 +149,21 @@ app.post("/logout", (req, res) => {
 app.post("/register", (req, res) => {
   const email = req.body["email"];
   const password = req.body["password"];
-  const userRandomID = generateRandomString();
-  users[userRandomID] = {
-    id: userRandomID,
-    "email": email,
-    "password": password
+  if (email === "" || password === "") {
+    res.status(400).send("Please submit a valid email and password.");
+    //add "go back to registration page" option here?
+  } else if (lookUpEmail(email)) {
+    res.status(400).send("This email is already registered.");
+  } else {
+    const userRandomID = generateRandomString();
+    users[userRandomID] = {
+      id: userRandomID,
+      "email": email,
+      "password": password
+    }
+    res.cookie("user_id", userRandomID);
+    res.redirect('/urls');
   }
-  res.cookie("user_id", userRandomID);
-  res.redirect('/urls');
 });
 
 //Add a catch-all
@@ -154,5 +173,5 @@ app.post("/register", (req, res) => {
 
 //Listening: Listen for new requests on a certain port:
 app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
+  console.log(`TinyApp listening on port ${PORT}!`);
 });

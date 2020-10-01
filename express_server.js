@@ -5,6 +5,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
 
 //Create server:
 const app = express();
@@ -193,7 +194,7 @@ app.post("/login", (req, res) => {
   const userObject = returnUserObjectForEmail(email);
   if (!userObject) {
     res.status(403).send("This email address is not registered.");
-  } else if (password !== userObject["password"]) {
+  } else if (!bcrypt.compareSync(password, userObject["password"])) {
     res.status(403).send("Invalid password.");
   } else {
     res.cookie("user_id", userObject["id"]);
@@ -211,6 +212,7 @@ app.post("/logout", (req, res) => {
 app.post("/register", (req, res) => {
   const email = req.body["email"];
   const password = req.body["password"];
+  const hashedPassword = bcrypt.hashSync(password, 10);
   if (email === "" || password === "") {
     res.status(400).send("Please submit a valid email and password.");
     //add "go back to registration page" option here?
@@ -221,7 +223,7 @@ app.post("/register", (req, res) => {
     users[userRandomID] = {
       id: userRandomID,
       "email": email,
-      "password": password
+      "password": hashedPassword
     };
     res.cookie("user_id", userRandomID);
     res.redirect('/urls');

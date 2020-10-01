@@ -96,7 +96,7 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-//The below route sends users to the long URL when they use the endpoint:
+//The below route sends users to the long URL when they use the short URL endpoint:
 app.get("/u/:shortURL", (req, res) => {
   longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
@@ -105,8 +105,15 @@ app.get("/u/:shortURL", (req, res) => {
 //Send users to registration page:
 app.get("/register", (req, res) => {
   const userObject = users[req.cookies["user_id"]];
-  const templateVars = { urls: urlDatabase, user: userObject };
+  const templateVars = { user: userObject };
   res.render("registration", templateVars);
+});
+
+//Send users to login page:
+app.get('/login', (req, res) => {
+  const userObject = users[req.cookies["user_id"]];
+  const templateVars = { user: userObject };
+  res.render("login", templateVars);
 });
 
 //POST

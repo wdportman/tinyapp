@@ -22,66 +22,9 @@ app.use(cookieSession({
   keys: ["superSecretKey","evenMoreSuperSecretKey"]
 }));
 
-//DATA ---------------------------------------------------------------------------
-
-//URLs:
-const urlDatabase = {
-  "b2xVn2": {
-    longURL: "http://www.lighthouselabs.ca",
-    userID: "aJ48lW"
-  },
-  "9sm5xK": {
-    longURL: "http://www.google.com",
-    userID: "aJ48lW"
-  }
-};
-
-//Users:
-const users = {
-  "userRandomID": {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur"
-  },
-  "user2RandomID": {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk"
-  }
-};
-
-//FUNCTIONS ---------------------------------------------------------------------------
-
-//Random string generator for short URLs:
-const generateRandomString = () => {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let output = "";
-  for (let i = 0; i < 6; i++) {
-    output += characters[Math.floor(Math.random() * characters.length)];
-  }
-  return output;
-};
-
-//Return associated user object if email is in database
-const returnUserObjectForEmail = (email, database) => {
-  for (const user in database) {
-    if (email === database[user]["email"]) {
-      return database[user];
-    }
-  }
-  return false;
-};
-
-//Returns the URLs where the userID is equal to the ID of the currently logged-in user:
-const urlsForUser = (id) => {
-  const output = {};
-  for (url in urlDatabase) {
-    if (urlDatabase[url]["userID"] === id) {
-      output[url] = urlDatabase[url];
-    }
-  }
-  return output;
-};
+//Require modules from different files
+const { generateRandomString, getUserByEmail, getURLsForUser } = require('./helpers'); //Helper functions
+const { urlDatabase, userDatabase } = require('./databases'); //Database objects
 
 //ROUTES ---------------------------------------------------------------------------
 
@@ -97,14 +40,14 @@ app.get("/urls.json", (req, res) => {
 
 //Show user "database":
 app.get("/users.json", (req, res) => {
-  res.json(users);
+  res.json(userDatabase);
 });
 
 //The below route shows a listing of all long-and-short URL pairs:
 app.get("/urls", (req, res) => {
-  const userObject = users[req.session["user_id"]];
+  const userObject = userDatabase[req.session["user_id"]];
   const id = req.session["user_id"];
-  const urls = urlsForUser(id);
+  const urls = getURLsForUser(id, urlDatabase);
   const templateVars = { urls, user: userObject };
   if (!userObject) {
     res.status(403).send("Please log in or register.");
@@ -115,7 +58,7 @@ app.get("/urls", (req, res) => {
 
 //The below route shows a submit-new-URL page:
 app.get("/urls/new", (req, res) => {
-  const userObject = users[req.session["user_id"]];
+  const userObject = userDatabase[req.session["user_id"]];
   const templateVars = { user: userObject };
   if (!userObject) {
     res.status(403).send("Please log in or register.");
@@ -126,7 +69,7 @@ app.get("/urls/new", (req, res) => {
 
 //The below route shows, for a given short URL, what its long URL is:
 app.get("/urls/:shortURL", (req, res) => {
-  const userObject = users[req.session["user_id"]];
+  const userObject = userDatabase[req.session["user_id"]];
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]["longURL"], user: userObject };
   if (!userObject) {
     res.redirect("/login");
@@ -143,14 +86,14 @@ app.get("/u/:shortURL", (req, res) => {
 
 //Send users to registration page:
 app.get("/register", (req, res) => {
-  const userObject = users[req.session["user_id"]];
+  const userObject = userDatabase[req.session["user_id"]];
   const templateVars = { user: userObject };
   res.render("registration", templateVars);
 });
 
 //Send users to login page:
 app.get('/login', (req, res) => {
-  const userObject = users[req.session["user_id"]];
+  const userObject = userDatabase[req.session["user_id"]];
   const templateVars = { user: userObject };
   res.render("login", templateVars);
 });
@@ -166,7 +109,7 @@ app.post("/urls", (req, res) => {
 //Handle post request when user deletes URL (on /urls):
 app.post("/urls/:id/delete", (req, res) => {
   const id = req.session["user_id"];
-  const urls = urlsForUser(id);
+  const urls = getURLsForUser(id, urlDatabase);
   const urlId = req.params.id;
   if (urls[urlId]) {
     delete urlDatabase[urlId];
@@ -179,7 +122,7 @@ app.post("/urls/:id/delete", (req, res) => {
 //Handle post request when user updates a URL (on /urls_show):
 app.post("/urls/:id", (req,res) => {
   const id = req.session["user_id"];
-  const urls = urlsForUser(id);
+  const urls = getURLsForUser(id, urlDatabase);
   const updatedLongURL = req.body["updatedLongURL"];
   const urlId = req.params.id;
   if (urls[urlId]) {
@@ -194,7 +137,7 @@ app.post("/urls/:id", (req,res) => {
 app.post("/login", (req, res) => {
   const email = req.body["email"];
   const password = req.body["password"];
-  const userObject = returnUserObjectForEmail(email, users);
+  const userObject = getUserByEmail(email, userDatabase);
   if (!userObject) {
     res.status(403).send("This email address is not registered.");
   } else if (!bcrypt.compareSync(password, userObject["password"])) {
@@ -219,11 +162,11 @@ app.post("/register", (req, res) => {
   if (email === "" || password === "") {
     res.status(400).send("Please submit a valid email and password.");
     //add "go back to registration page" option here?
-  } else if (returnUserObjectForEmail(email, users)) {
+  } else if (getUserByEmail(email, userDatabase)) {
     res.status(400).send("This email is already registered.");
   } else {
     const userRandomID = generateRandomString();
-    users[userRandomID] = {
+    userDatabase[userRandomID] = {
       id: userRandomID,
       "email": email,
       "password": hashedPassword

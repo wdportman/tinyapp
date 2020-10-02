@@ -8,6 +8,9 @@
 <body>
   <header><%- include('./partials/_header.ejs'); %></header>
   <main style="margin: 1em;">
+    <% if(!user){ %>
+    <p>You are not logged in. Please <a href="/login">log in</a> or <a href="/register">sign up</a>!</p>
+    <% } %>
     <h3>My URLs</h3>
     <table class="table">
       <thead>

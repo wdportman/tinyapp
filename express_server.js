@@ -1,4 +1,4 @@
-//APP SET-UP ---------------------------------------------------------------------------
+//APP SET-UP ---------------------------------------------------
 
 //Require third-party libraries:
 const express = require("express");
@@ -31,11 +31,20 @@ app.use(cookieSession({
   keys: ["superSecretKey","evenMoreSuperSecretKey"]
 }));
 
-//ROUTES ---------------------------------------------------------------------------
+
+//ROUTES ---------------------------------------------------
+
+
+//GET routes
 
 //Redirect "/" requests to URLs page:
 app.get("/", (req, res) => {
-  res.redirect('/urls');
+  const userObject = userDatabase[req.session["user_id"]];
+  if (userObject) {
+    res.redirect('/urls');
+  } else {
+    res.redirect('/login');
+  }
 });
 
 //Show URLs "database":
@@ -54,21 +63,17 @@ app.get("/urls", (req, res) => {
   const id = req.session["user_id"];
   const urls = getURLsForUser(id, urlDatabase);
   const templateVars = { urls, user: userObject };
-  if (!userObject) {
-    res.status(403).send("Please log in or register.");
-  } else {
-    res.render("urls_index", templateVars);
-  }
+  res.render("urls_index", templateVars);
 });
 
 //The below route shows a submit-new-URL page:
 app.get("/urls/new", (req, res) => {
   const userObject = userDatabase[req.session["user_id"]];
   const templateVars = { user: userObject };
-  if (!userObject) {
-    res.status(403).send("Please log in or register.");
-  } else {
+  if (userObject) {
     res.render("urls_new", templateVars);
+  } else {
+    res.redirect('/login');
   }
 });
 
@@ -103,12 +108,19 @@ app.get('/login', (req, res) => {
   res.render("login", templateVars);
 });
 
-//POST
+
+//POST ROUTES
+
 //Handle post request when user submits new URL (on /urls/new):
 app.post("/urls", (req, res) => {
   const newShortURL = generateRandomString();
-  urlDatabase[newShortURL] = { longURL: req.body["longURL"], userID: req.session["user_id"] };
-  res.redirect(`/urls/${newShortURL}`);
+  const userObject = userDatabase[req.session["user_id"]];
+  if (userObject) {
+    urlDatabase[newShortURL] = { longURL: req.body["longURL"], userID: req.session["user_id"] };
+    res.redirect(`/urls/${newShortURL}`);
+  } else {
+    res.redirect("/urls");
+  }
 });
 
 //Handle post request when user deletes URL (on /urls):

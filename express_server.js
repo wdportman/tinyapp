@@ -80,9 +80,10 @@ app.get("/urls/new", (req, res) => {
 //The below route shows, for a given short URL, what its long URL is:
 app.get("/urls/:shortURL", (req, res) => {
   const userObject = userDatabase[req.session["user_id"]];
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]["longURL"], user: userObject };
+  const urlObject = urlDatabase[req.params.shortURL];
+  const templateVars = { shortURL: req.params.shortURL, urlObject, user: userObject };
   if (!userObject) {
-    res.redirect("/login");
+    res.redirect("/urls");
   } else {
     res.render("urls_show", templateVars);
   }
@@ -90,22 +91,34 @@ app.get("/urls/:shortURL", (req, res) => {
 
 //The below route sends users to the long URL when they use the short URL endpoint:
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL]["longURL"];
-  res.redirect(longURL);
+  if (req.params.shortURL in urlDatabase) {
+    const longURL = urlDatabase[req.params.shortURL]["longURL"];
+    res.redirect(longURL);
+  } else {
+    res.redirect("https://www.youtube.com/watch?v=oHg5SJYRHA0");
+  }
 });
 
 //Send users to registration page:
 app.get("/register", (req, res) => {
   const userObject = userDatabase[req.session["user_id"]];
   const templateVars = { user: userObject };
-  res.render("registration", templateVars);
+  if(!userObject) {
+    res.render("registration", templateVars);
+  } else {
+    res.redirect('/urls');
+  }
 });
 
 //Send users to login page:
 app.get('/login', (req, res) => {
   const userObject = userDatabase[req.session["user_id"]];
   const templateVars = { user: userObject };
-  res.render("login", templateVars);
+  if(!userObject) {
+    res.render("login", templateVars);
+  } else {
+    res.redirect('/urls');
+  }
 });
 
 

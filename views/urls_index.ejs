@@ -9,8 +9,9 @@
   <header><%- include('./partials/_header.ejs'); %></header>
   <main style="margin: 1em;">
     <% if(!user){ %>
-    <p>You are not logged in. Please <a href="/login">log in</a> or <a href="/register">sign up</a>!</p>
-    <% } %>
+      <p>You are not logged in. Please <a href="/login">log in</a> or <a href="/register">sign up</a>!</p>
+        <% } %>
+    <% if(user){ %>
     <h3>My URLs</h3>
     <table class="table">
       <thead>
@@ -40,6 +41,8 @@
         <% } %>
       </tbody>
     </table>
+    <a href="/urls/new">Create a New Short Link</a>
+    <% } %>
   </main>
   <footer><%- include('./partials/_footer.ejs'); %></footer>
 </body>

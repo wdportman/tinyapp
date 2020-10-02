@@ -1,0 +1,25 @@
+<!-- The below template is rendered for the user login page.-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head><%- include('./partials/_head.ejs'); %></head>
+
+<body>
+  <header><%- include('./partials/_header.ejs'); %></head>
+    <div class="card text-center">
+      <div class="card-header"></div>
+      <div class="card-body">
+      <h5 class="card-title">Log in</h5>
+      <form class = "card-test" method="POST" action="/login">
+        <label for="email">Email address: </label>
+        <input type="email" name="email" />
+        <label for="password">Password: </label>
+        <input type="password" name="password" />
+        <button type="submit" class="btn btn-primary">Log in</button>
+      </form>
+    </div>
+</body>
+<footer><%- include('./partials/_footer.ejs'); %></footer>
+
+</html>

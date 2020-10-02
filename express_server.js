@@ -1,4 +1,4 @@
-//APP SET-UP ---------------------------------------------------
+//APP SET-UP ------------------------------------------
 
 //Require third-party libraries:
 const express = require("express");
@@ -31,11 +31,9 @@ app.use(cookieSession({
   keys: ["superSecretKey","evenMoreSuperSecretKey"]
 }));
 
+//HTTP REQUEST HANDLING ------------------------------------------
 
-//ROUTES ---------------------------------------------------
-
-
-//GET routes
+//ROUTES:
 
 app.get("/", (req, res) => {
   const userObject = userDatabase[req.session["user_id"]];
@@ -112,7 +110,7 @@ app.get('*', (req, res) => {
 });
 
 
-//POST ROUTES
+//ACTIONS:
 
 app.post("/login", (req, res) => {
   const email = req.body["email"];

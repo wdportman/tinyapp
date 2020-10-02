@@ -17,7 +17,6 @@ const getUserByEmail = (email, database) => {
       return database[user];
     }
   }
-  return false;
 };
 
 //Returns the URLs where the userID is equal to the ID of the currently logged-in user:

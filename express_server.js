@@ -1,4 +1,4 @@
-//SERVER SET-UP ---------------------------------------------------------------------------
+//APP SET-UP ---------------------------------------------------------------------------
 
 //Require third-party libraries:
 const express = require("express");
@@ -7,24 +7,29 @@ const morgan = require('morgan');
 const bcrypt = require('bcrypt');
 const cookieSession = require('cookie-session');
 
+//Require modules from different files in project:
+const { generateRandomString, getUserByEmail, getURLsForUser } = require('./helpers');
+const { urlDatabase, userDatabase } = require('./databases');
+
 //Create server:
 const app = express();
 const PORT = 8080; // default port 8080
 
+//Listen for new requests on a specified port:
+app.listen(PORT, () => {
+  console.log(`TinyApp listening on port ${PORT}!`);
+});
+
 //Set EJS as view engine:
 app.set("view engine", "ejs");
 
-//Middleware: Set up body-parser (which parses HTTP request bodies) and Morgan (which logs HTTP requests to console)
+//Set up middleware:
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(morgan('dev'));
 app.use(cookieSession({
   name: 'session',
   keys: ["superSecretKey","evenMoreSuperSecretKey"]
 }));
-
-//Require modules from different files
-const { generateRandomString, getUserByEmail, getURLsForUser } = require('./helpers'); //Helper functions
-const { urlDatabase, userDatabase } = require('./databases'); //Database objects
 
 //ROUTES ---------------------------------------------------------------------------
 
@@ -179,11 +184,4 @@ app.post("/register", (req, res) => {
 //Catch-all get request handler, if route is not specified above
 app.get('*', (req, res) => {
   res.status(404).send('Page not found');
-});
-
-// LISTENER ---------------------------------------------------------------------------
-
-//Listening: Listen for new requests on a certain port:
-app.listen(PORT, () => {
-  console.log(`TinyApp listening on port ${PORT}!`);
 });

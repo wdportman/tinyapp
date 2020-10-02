@@ -168,10 +168,9 @@ app.post("/login", (req, res) => {
   const email = req.body["email"];
   const password = req.body["password"];
   const userObject = getUserByEmail(email, userDatabase);
-  if (!userObject) {
-    res.status(403).send("This email address is not registered.");
-  } else if (!bcrypt.compareSync(password, userObject["password"])) {
-    res.status(403).send("Invalid password.");
+  const templateVars = { user: userObject };
+  if (!userObject || !bcrypt.compareSync(password, userObject["password"])) {
+    res.render("loginError", templateVars);
   } else {
     req.session.user_id = userObject["id"]; //set the cookie based on saved user_id
     res.redirect('/urls');

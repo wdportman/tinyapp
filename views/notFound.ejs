@@ -1,4 +1,4 @@
-<!-- The below template is rendered when users try to register with invalid information.-->
+<!-- The below template is rendered when users submit a GET request to a non-existent endpoint.-->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -7,7 +7,8 @@
 
 <body>
   <header><%- include('./partials/_header.ejs'); %></header>
-    <p>Invalid registration information. Please try <a href="/register">try registering again</a>.</p>
+    <p>Not found: We can't seem to find anything at this address.</p>
+    <p>Try returning to the <a href="/urls">main page</a>?</p>
 </body>
 <footer><%- include('./partials/_footer.ejs'); %></footer>
 

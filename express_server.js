@@ -7,15 +7,15 @@ const morgan = require('morgan');
 const bcrypt = require('bcrypt');
 const cookieSession = require('cookie-session');
 
-//Require modules from different files in project:
+//Require modules in this file from different files in this project:
 const { generateRandomString, getUserByEmail, getURLsForUser } = require('./helpers');
 const { urlDatabase, userDatabase } = require('./databases');
 
 //Create server:
 const app = express();
-const PORT = 8080; // default port 8080
+const PORT = 8080;
 
-//Listen for new requests on a specified port:
+//Listen for new requests on specified port:
 app.listen(PORT, () => {
   console.log(`TinyApp listening on port ${PORT}!`);
 });
@@ -37,7 +37,6 @@ app.use(cookieSession({
 
 //GET routes
 
-//Redirect "/" requests to URLs page:
 app.get("/", (req, res) => {
   const userObject = userDatabase[req.session["user_id"]];
   if (userObject) {
@@ -47,17 +46,35 @@ app.get("/", (req, res) => {
   }
 });
 
-//Show URLs "database":
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
+app.get('/login', (req, res) => {
+  const userObject = userDatabase[req.session["user_id"]];
+  const templateVars = { user: userObject };
+  if (!userObject) {
+    res.render("login", templateVars);
+  } else {
+    res.redirect('/urls');
+  }
 });
 
-//Show user "database":
-app.get("/users.json", (req, res) => {
-  res.json(userDatabase);
+app.get("/register", (req, res) => {
+  const userObject = userDatabase[req.session["user_id"]];
+  const templateVars = { user: userObject };
+  if (!userObject) {
+    res.render("registration", templateVars);
+  } else {
+    res.redirect('/urls');
+  }
 });
 
-//The below route shows a listing of all long-and-short URL pairs:
+app.get("/u/:shortURL", (req, res) => {
+  if (req.params.shortURL in urlDatabase) {
+    const longURL = urlDatabase[req.params.shortURL]["longURL"];
+    res.redirect(longURL);
+  } else {
+    res.redirect("https://www.youtube.com/watch?v=oHg5SJYRHA0");
+  }
+});
+
 app.get("/urls", (req, res) => {
   const userObject = userDatabase[req.session["user_id"]];
   const id = req.session["user_id"];
@@ -66,7 +83,6 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-//The below route shows a submit-new-URL page:
 app.get("/urls/new", (req, res) => {
   const userObject = userDatabase[req.session["user_id"]];
   const templateVars = { user: userObject };
@@ -77,7 +93,6 @@ app.get("/urls/new", (req, res) => {
   }
 });
 
-//The below route shows, for a given short URL, what its long URL is:
 app.get("/urls/:shortURL", (req, res) => {
   const userObject = userDatabase[req.session["user_id"]];
   const urlObject = urlDatabase[req.params.shortURL];
@@ -89,81 +104,16 @@ app.get("/urls/:shortURL", (req, res) => {
   }
 });
 
-//The below route sends users to the long URL when they use the short URL endpoint:
-app.get("/u/:shortURL", (req, res) => {
-  if (req.params.shortURL in urlDatabase) {
-    const longURL = urlDatabase[req.params.shortURL]["longURL"];
-    res.redirect(longURL);
-  } else {
-    res.redirect("https://www.youtube.com/watch?v=oHg5SJYRHA0");
-  }
-});
-
-//Send users to registration page:
-app.get("/register", (req, res) => {
+//Catch-all get request handler, if route is not specified above
+app.get('*', (req, res) => {
   const userObject = userDatabase[req.session["user_id"]];
   const templateVars = { user: userObject };
-  if (!userObject) {
-    res.render("registration", templateVars);
-  } else {
-    res.redirect('/urls');
-  }
-});
-
-//Send users to login page:
-app.get('/login', (req, res) => {
-  const userObject = userDatabase[req.session["user_id"]];
-  const templateVars = { user: userObject };
-  if (!userObject) {
-    res.render("login", templateVars);
-  } else {
-    res.redirect('/urls');
-  }
+  res.render('notFound', templateVars);
 });
 
 
 //POST ROUTES
 
-//Handle post request when user submits new URL (on /urls/new):
-app.post("/urls", (req, res) => {
-  const newShortURL = generateRandomString();
-  const userObject = userDatabase[req.session["user_id"]];
-  if (userObject) {
-    urlDatabase[newShortURL] = { longURL: req.body["longURL"], userID: req.session["user_id"] };
-    res.redirect(`/urls/${newShortURL}`);
-  } else {
-    res.redirect("/urls");
-  }
-});
-
-//Handle post request when user deletes URL (on /urls):
-app.post("/urls/:id/delete", (req, res) => {
-  const id = req.session["user_id"];
-  const urls = getURLsForUser(id, urlDatabase);
-  const urlId = req.params.id;
-  if (urls[urlId]) {
-    delete urlDatabase[urlId];
-    res.redirect('/urls');
-  } else {
-    res.status(403).send("Deletion request denied: Unauthorized.");
-  }
-});
-
-//Handle post request when user updates a URL (on /urls_show):
-app.post("/urls/:id", (req, res) => {
-  const id = req.session["user_id"];
-  const urls = getURLsForUser(id, urlDatabase);
-  const updatedLongURL = req.body["updatedLongURL"];
-  const urlId = req.params.id;
-  if (urls[urlId]) {
-    urlDatabase[urlId]["longURL"] = updatedLongURL;
-    res.redirect('/urls');
-  } else {
-    res.status(403).send("Update request denied: Unauthorized.");
-  }
-});
-
-//Handle login request:
 app.post("/login", (req, res) => {
   const email = req.body["email"];
   const password = req.body["password"];
@@ -177,13 +127,11 @@ app.post("/login", (req, res) => {
   }
 });
 
-//Handle logout request
 app.post("/logout", (req, res) => {
   req.session = null; //clear the cookie when user logs out
   res.redirect('/urls');
 });
 
-//Handle registration request:
 app.post("/register", (req, res) => {
   const email = req.body["email"];
   const password = req.body["password"];
@@ -204,7 +152,38 @@ app.post("/register", (req, res) => {
   }
 });
 
-//Catch-all get request handler, if route is not specified above
-app.get('*', (req, res) => {
-  res.status(404).send('Page not found');
+app.post("/urls", (req, res) => {
+  const newShortURL = generateRandomString();
+  const userObject = userDatabase[req.session["user_id"]];
+  if (userObject) {
+    urlDatabase[newShortURL] = { longURL: req.body["longURL"], userID: req.session["user_id"] };
+    res.redirect(`/urls/${newShortURL}`);
+  } else {
+    res.redirect("/urls");
+  }
+});
+
+app.post("/urls/:id", (req, res) => {
+  const id = req.session["user_id"];
+  const urls = getURLsForUser(id, urlDatabase);
+  const updatedLongURL = req.body["updatedLongURL"];
+  const urlId = req.params.id;
+  if (urls[urlId]) {
+    urlDatabase[urlId]["longURL"] = updatedLongURL;
+    res.redirect('/urls');
+  } else {
+    res.status(403).send("Update request denied: Unauthorized.");
+  }
+});
+
+app.post("/urls/:id/delete", (req, res) => {
+  const id = req.session["user_id"];
+  const urls = getURLsForUser(id, urlDatabase);
+  const urlId = req.params.id;
+  if (urls[urlId]) {
+    delete urlDatabase[urlId];
+    res.redirect('/urls');
+  } else {
+    res.status(403).send("Deletion request denied: Unauthorized.");
+  }
 });

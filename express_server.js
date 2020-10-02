@@ -103,7 +103,7 @@ app.get("/u/:shortURL", (req, res) => {
 app.get("/register", (req, res) => {
   const userObject = userDatabase[req.session["user_id"]];
   const templateVars = { user: userObject };
-  if(!userObject) {
+  if (!userObject) {
     res.render("registration", templateVars);
   } else {
     res.redirect('/urls');
@@ -114,7 +114,7 @@ app.get("/register", (req, res) => {
 app.get('/login', (req, res) => {
   const userObject = userDatabase[req.session["user_id"]];
   const templateVars = { user: userObject };
-  if(!userObject) {
+  if (!userObject) {
     res.render("login", templateVars);
   } else {
     res.redirect('/urls');
@@ -188,11 +188,10 @@ app.post("/register", (req, res) => {
   const email = req.body["email"];
   const password = req.body["password"];
   const hashedPassword = bcrypt.hashSync(password, 10);
-  if (email === "" || password === "") {
-    res.status(400).send("Please submit a valid email and password.");
-    //add "go back to registration page" option here?
-  } else if (getUserByEmail(email, userDatabase)) {
-    res.status(400).send("This email is already registered.");
+  const userObject = getUserByEmail(email, userDatabase);
+  const templateVars = { user: userObject };
+  if (email === "" || password === "" || getUserByEmail(email, userDatabase)) {
+    res.render("registrationError", templateVars);
   } else {
     const userRandomID = generateRandomString();
     userDatabase[userRandomID] = {

@@ -22,7 +22,7 @@ const getUserByEmail = (email, database) => {
 //Returns the URLs where the userID is equal to the ID of the currently logged-in user:
 const getURLsForUser = (id, database) => {
   const output = {};
-  for (url in database) {
+  for (const url in database) {
     if (database[url]["userID"] === id) {
       output[url] = database[url];
     }
@@ -30,4 +30,4 @@ const getURLsForUser = (id, database) => {
   return output;
 };
 
-module.exports = { generateRandomString, getUserByEmail, getURLsForUser }
+module.exports = { generateRandomString, getUserByEmail, getURLsForUser };

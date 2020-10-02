@@ -125,7 +125,7 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 //Handle post request when user updates a URL (on /urls_show):
-app.post("/urls/:id", (req,res) => {
+app.post("/urls/:id", (req, res) => {
   const id = req.session["user_id"];
   const urls = getURLsForUser(id, urlDatabase);
   const updatedLongURL = req.body["updatedLongURL"];
@@ -133,7 +133,7 @@ app.post("/urls/:id", (req,res) => {
   if (urls[urlId]) {
     urlDatabase[urlId]["longURL"] = updatedLongURL;
     res.redirect('/urls');
-    } else {
+  } else {
     res.status(403).send("Update request denied: Unauthorized.");
   }
 });

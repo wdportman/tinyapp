@@ -10,10 +10,10 @@ Register page:
 URLs page:
 !["Screenshot of URLs page"](https://github.com/wdportman/tinyapp/blob/master/docs/:urls.png)
 
-Add-a-new-URL page:
+View-a-URL page:
 !["Screenshot of add-a-new-URL page"](https://github.com/wdportman/tinyapp/blob/master/docs/:urls:id.png)
 
-View-a-URL page:
+Add-a-new-URL page:
 !["Screenshot of view-a-URL page"](https://github.com/wdportman/tinyapp/blob/master/docs/:urls:new.png)
 
 ## Dependencies
